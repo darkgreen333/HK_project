@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   <mapper namespace="com.lee.ccc.itemsMapper">
+
+<!-- paraeterType="hashMap" == select절에 where조건 사용할때 -->
+
+<!-- 카테고리 호출 
+<select id="category" resultType="com.lee.ccc.dto.itemsCateDto">
+select level, cateName, cateCode, cateCodeRef
+from items_category start with cateCodeRef is null connect by prior cateCode = catdCodeRef
+
+</select>-->
+
+
+	<!-- 상품등록  -->
+	<insert id="register1" parameterType ="com.lee.ccc.dto.itemsDto">
+		INSERT INTO SUP_ITEMS (ITEMS_CATE, ITEMS_CODE, ITEMS_NAME, ITEMS_QUANT,ITEMS_DELI,ITEMS_PRICE,ITEMS_EXPLAIN,ITEMS_STOCK,ITEMS_IMAGE,ITEMS_EX_IMAGE)
+		values (#{items_cate},ITEMS_BED.NEXTVAL,#{items_name},#{items_quant},#{items_deli},#{items_price},#{items_explain},#{items_stock},#{items_image},#{items_ex_image})
+	</insert>
+	
+	<insert id="register2" parameterType ="com.lee.ccc.dto.itemsDto">
+		INSERT INTO SUP_ITEMS (ITEMS_CATE, ITEMS_CODE, ITEMS_NAME, ITEMS_QUANT,ITEMS_DELI,ITEMS_PRICE,ITEMS_EXPLAIN,ITEMS_STOCK,ITEMS_IMAGE,ITEMS_EX_IMAGE)
+		values (#{items_cate},ITEMS_TABLE.NEXTVAL,#{items_name},#{items_quant},#{items_deli},#{items_price},#{items_explain},#{items_stock},#{items_image},#{items_ex_image})
+	</insert>
+	
+	<insert id="register3" parameterType ="com.lee.ccc.dto.itemsDto">
+		INSERT INTO SUP_ITEMS (ITEMS_CATE, ITEMS_CODE, ITEMS_NAME, ITEMS_QUANT,ITEMS_DELI,ITEMS_PRICE,ITEMS_EXPLAIN,ITEMS_STOCK,ITEMS_IMAGE,ITEMS_EX_IMAGE)
+		values (#{items_cate},ITEMS_CHAIR.NEXTVAL,#{items_name},#{items_quant},#{items_deli},#{items_price},#{items_explain},#{items_stock},#{items_image},#{items_ex_image})
+	</insert>
+	
+	<insert id="register4" parameterType ="com.lee.ccc.dto.itemsDto">
+		INSERT INTO SUP_ITEMS (ITEMS_CATE, ITEMS_CODE, ITEMS_NAME, ITEMS_QUANT,ITEMS_DELI,ITEMS_PRICE,ITEMS_EXPLAIN,ITEMS_STOCK,ITEMS_IMAGE,ITEMS_EX_IMAGE)
+		values (#{items_cate},ITEMS_SOFA.NEXTVAL,#{items_name},#{items_quant},#{items_deli},#{items_price},#{items_explain},#{items_stock},#{items_image},#{items_ex_image})
+	</insert>
+	
+	<insert id="register5" parameterType ="com.lee.ccc.dto.itemsDto">
+		INSERT INTO SUP_ITEMS (ITEMS_CATE, ITEMS_CODE, ITEMS_NAME, ITEMS_QUANT,ITEMS_DELI,ITEMS_PRICE,ITEMS_EXPLAIN,ITEMS_STOCK,ITEMS_IMAGE,ITEMS_EX_IMAGE)
+		values (#{items_cate},ITEMS_BOOKSHELF.NEXTVAL,#{items_name},#{items_quant},#{items_deli},#{items_price},#{items_explain},#{items_stock},#{items_image},#{items_ex_image})
+	</insert>
+	
+	<insert id="register6" parameterType ="com.lee.ccc.dto.itemsDto">
+		INSERT INTO SUP_ITEMS (ITEMS_CATE, ITEMS_CODE, ITEMS_NAME, ITEMS_QUANT,ITEMS_DELI,ITEMS_PRICE,ITEMS_EXPLAIN,ITEMS_STOCK,ITEMS_IMAGE,ITEMS_EX_IMAGE)
+		values (#{items_cate},ITEMS_ETC.NEXTVAL,#{items_name},#{items_quant},#{items_deli},#{items_price},#{items_explain},#{items_stock},#{items_image},#{items_ex_image})
+	</insert>
+	
+	
+	
+	
+	
+	<!-- 상품 목록  / 페이징처리 위해 추가함
+		from절에서 rNum으로 약칭한 row_number()에 번호를 매김.
+		이렇게 조회된 from절 데이터로 다시 select를 조회함.-->
+		
+	<select id="register_list" resultType="com.lee.ccc.dto.itemsDto" parameterType="com.lee.ccc.dto.SearchCriteria">
+		select items_cate, items_code,items_image,items_name,items_stock,items_deli,items_price,items_date
+		from (
+				select items_cate, items_code,items_image,items_name,items_stock,items_deli,items_price,items_date,
+				row_number() over(order by items_cate) as rnum
+				from sup_items
+				where 1=1
+					<include refid="search"></include>
+				) mp
+		where rnum between #{rowStart} and #{rowEnd} 	
+		order by items_code
+	</select>
+		
+	
+	
+	
+	<!-- 상품 목록 페이징위해 추가 -->
+	<select id="listCount" resultType="int" parameterType="com.lee.ccc.dto.SearchCriteria">
+		select count(items_code)
+		from sup_items
+		WHERE 1=1
+		<include refid="search"></include>
+		and items_code > 0
+	</select>
+	
+	
+	<!-- 상품목록내 검색 기능(페이징) -->
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND items_cate LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND items_name LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND items_code LIKE '%' || #{keyword} || '%'</if>
+			
+		</if>
+	</sql>
+	
+	
+	
+	
+	<!-- 상품 조회 -->
+	<select id="register_retrieve" resultType="com.lee.ccc.dto.itemsDto">
+		select items_cate, items_code,  items_name,items_quant, items_deli, items_price, items_image, items_explain,items_stock, items_explain,items_date,items_ex_image
+		from sup_items
+		where  items_code = #{items_code}
+	</select>
+	
+	
+	
+	
+	<!-- 상품 수정 다시받는값 없으니 resultType (x) -->
+	<update id="register_modify" parameterType="com.lee.ccc.dto.itemsDto">
+		update sup_items
+		set
+			items_cate = #{items_cate},
+			items_name = #{items_name},
+			items_quant = #{items_quant},
+			items_deli = #{items_deli},
+			items_price = #{items_price},
+			items_image = #{items_image},
+			items_explain = #{items_explain},
+			items_ex_image = #{items_ex_image},
+			items_stock = #{items_stock}
+		where items_code = #{items_code}
+	
+	</update>
+	
+	
+	
+	
+	
+	
+	<!-- 상품 삭제 -->
+	<delete id="register_delete">
+		delete sup_items where items_code = #{items_code}
+	</delete>
+	
+	
+	
+	
+	
+ <!-- =======================  USER  ============================== -->
+ 
+ 
+	
+	
+	<!-- User  List parameterType필요함-->
+	<select id="userList" resultType="com.lee.ccc.dto.itemsDto" parameterType="int">
+		select
+		items_cate, items_code, items_name,items_quant, items_deli, items_price, items_image, items_explain,items_stock,items_date,items_ex_image
+		from sup_items
+		where items_cate = #{items_cate}
+		order by items_code 
+		
+	</select>
+	
+	
+	
+	
+	<!-- User 상세페이지 조회 -->
+	<select id="user_view" resultType="com.lee.ccc.dto.itemsDto">
+		select 
+		items_cate, items_code, items_name,items_quant, items_deli, items_price, items_image, items_explain,items_stock,items_date,items_ex_image
+		from sup_items
+		where  items_code = #{items_code}
+	</select>
+	
+
+	
+	<!-- ================order========================== -->
+	<select id="order" resultType="com.lee.ccc.dto.itemsDto">
+		select 
+		items_cate, items_code, items_name,items_quant, items_deli, items_price, items_image, items_explain,items_stock,items_date,items_ex_image
+		from sup_items
+		where  items_code = #{items_code}
+	</select>
+
+
+	<!-- id는 interface의 메서드 이름,parameterType은 메서드의 파라메터 변수형,resultType은
+		메서드의 리턴 타임을 적어줌(객체형은 패키지 까지 포함)
+		#{파라메터명}으로 메서드의 파라메터 사용되는 값 -->
+	
+</mapper>
+

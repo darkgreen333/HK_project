@@ -1,0 +1,274 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix = "x" uri = "http://java.sun.com/jsp/jstl/xml"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix = "sql" uri = "http://java.sun.com/jsp/jstl/sql"%>
+<%@ taglib prefix = "fn" uri = "http://java.sun.com/jsp/jstl/functions"%>
+<!DOCTYPE html>
+<html>
+<head lang="ko">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--bootstrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<!--font-awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<title>장바구니</title>
+<style>
+#menu2 {
+   margin-right:50px;
+   margin-top:20px;
+   
+}
+
+#menu2 ul li{
+   float:right;
+   list-style-type:none;
+   font-size:20px;
+   padding:10px;
+}
+
+#logo {
+   text-align:center; 
+   height: 100px; 
+   display: block;  
+
+}
+
+
+.section-gap {
+	padding :120px 0;
+}
+
+/*메뉴바*/
+
+.navbar {
+ 
+  background-color: #d2a679; 
+  z-index:4;
+}
+
+.navbar a {
+  float: left;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  
+}
+
+.subnav {
+  float: left;
+  overflow: hidden;
+}
+
+.subnav .subnavbtn {
+  font-size: 16px;  
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  margin: 0;
+}
+
+.navbar a:hover, .subnav:hover .subnavbtn {
+  background-color: #d2a679;
+  opacity: 0.8;
+}
+
+.subnav-content {
+  display: none;
+  position: absolute;
+  background-color: #d2a679; 
+  opacity: 0.5;
+  width: auto;
+  z-index: 1;
+}
+
+.subnav-content a {
+  float: left;
+  color: white;
+  text-decoration: none;
+}
+
+.subnav-content a:hover {
+  background-color: #eee;
+  color: black;
+}
+
+.subnav:hover .subnav-content {
+  display: block;
+}
+
+#logout {
+	font-size:18px;
+	float:right;
+	color:#B17B48;
+}
+
+#myPage {
+	font-size:20px;
+	float:right;
+}
+
+#img{
+	width:200px;
+	height:150px;
+}
+
+.container table tbody tr td{
+	text-align : center;
+	
+}
+
+.container table tr th{
+  	text-align : center;
+  }
+ 
+</style>
+</head>
+<body>
+
+
+
+
+<!-- header -->
+<%@ include file="header.jsp" %>
+
+
+<section>
+	<div id="main" >
+		<div ng-app="cart" ng-controller="myCtrl">
+			<div></div> <!-- header.jsp를 호출 -->
+			<div class="container">
+				<br>
+				<h3><strong>CART</strong></h3>
+				<br>
+				
+				
+				<table class="table table-hover" ng-init="total=0"> 
+					<thead>
+						<tr>
+							<th><input type="checkbox" id="checkall"/></th>
+							<th>번호</th>
+							<th>상품코드</th>
+							<th>이미지</th>
+							<th>상품 정보</th>
+							<th>수량</th>
+							<th>배송비</th>
+							<th>가격</th>
+							<th>결제 금액</th>
+							<th>삭제</th>
+						</tr>
+					</thead>
+					
+					<tbody >
+						<tr  ng-repeat ="x in products track by $index"><!-- track by $index =>중복키 에러 방지 -->
+							<td style="vertical-align:middle"><input type="checkbox" id="chk" name="chk" value="{{$index}}"></td>
+							<td style="vertical-align:middle">{{$index+1}}</td>
+							<td style="vertical-align:middle" id="code">{{x.code}}</td>
+							<td style="vertical-align:middle"><img src="upload/{{x.image}}" id ="img"/></td>
+							<td style="vertical-align:middle">{{x.name}}</td>
+							<td style="vertical-align:middle">{{x.quant}}개</td>
+							<td style="vertical-align:middle">{{x.deli | number :0}}원</td>
+							<td style="vertical-align:middle">{{x.price| number :0}}원</td>
+							<td style="vertical-align:middle">{{x.sum | number:0}}원</td>
+							<td style="vertical-align:middle"><span ng-click="removeItem($index)">X</span></td>
+						</tr>
+					</tbody>
+					<tbody>
+						<tr>
+							<td colspan="8" class="text-right">TOTAL</td>
+							<td colspan="4">{{products | sumByColumn : "sum" | number :0}}원</td>
+						</tr>
+					</tbody>
+				</table>
+		
+		<!-- <button type="submit" id="order">주문</button> -->
+		
+		</div>
+  
+		<div></div><!-- footer.jsp를 호출 -->
+		</div>
+	</div>
+</section>
+
+
+<!-- footer -->
+<%@ include file="footer.jsp" %>
+
+
+<!--jquery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!--popper -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<!--javascript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!--angula js -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+<script>
+$.noConflict();//angular와 충돌 방지를 위함
+jQuery(document).ready(function($){
+	$("#checkall").click(function(){
+		if($("#checkall").prop("checked")){
+			//input태그의 name이 chk인 태그들을 찾아서 cheked옵션 true
+			$("input[name=chk]").prop("checked",true);
+		
+		}else{
+			//클릭이 안되어 있으면 input태그의 name이 chk인 태그들을 찾아서 cheked옵션 false
+			$("input[name=chk]").prop("checked",false);
+		}
+	});
+	
+	
+
+});
+</script>
+
+<script>
+//로컬스토리지 angularJS로 구현
+
+var app = angular.module("cart",[]);
+app.filter("sumByColumn",function(){ //TOTAL 총 합계 계산 (필터사용)
+	return function(collection,column){
+		var total2 =0;
+		
+		collection.forEach(function(item){
+			total2 += parseInt(item[column]);
+		});
+		return total2;
+	};
+});
+app.controller("myCtrl",function($scope){
+	
+	//localStorage의 key,value가져오기
+	$scope.products = JSON.parse(localStorage.getItem("cartKey"));
+	console.log($scope.products); //value(array)
+		
+	
+	//상품 (행) 삭제
+	$scope.removeItem = function (x) {
+		$scope.products.splice(x, 1); //ng-click의index와 splice의 번호로 같이 삭제됨
+		localStorage.removeItem("cartKey"); //x클릭하여 상품 행 한줄이 삭제되면 로컬스토리지 cartKey배열이 다 사라짐 
+		localStorage.setItem("cartKey",JSON.stringify($scope.products));//로컬스토리지에 배열 새로 저장.(value값은 이제 다시 문자열로 products 배열이 들어감)
+	  }
+	
+	
+
+	});
+
+	
+
+
+
+</script>
+
+
+</body>
+</html>

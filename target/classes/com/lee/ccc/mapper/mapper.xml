@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lee.ccc.mapper">
+
+	<insert id="insertSignup" parameterType="com.lee.ccc.dto.MemberDto"> <!-- 회원가입 -->
+		<![CDATA[INSERT INTO SUP_MEMBER VALUES (#{memId},default,#{memPw},#{memName},#{memPhone},#{memAdd1},#{memAdd2},#{memEmail},#{memAdd3},sysdate,default,default)]]>
+	</insert>
+	
+	<select id="idCheck" resultType="int"> <!-- 아이디 중복 확인(회원가입) -->
+		<![CDATA[SELECT COUNT(*) FROM SUP_MEMBER WHERE MEM_ID = #{memId}]]>
+	</select>
+	
+  	<select id="selectUser" resultType="com.lee.ccc.dto.UserDto"> <!-- 아이디 찾기 -->
+ 		<![CDATA[SELECT MEM_ID as id,MEM_PW as password,MEM_NAME as name,MEM_LEVEL as authorities FROM SUP_MEMBER WHERE MEM_ID = #{memId}]]>
+	</select> 
+	
+	<update id ="pass_change" parameterType="hashMap"> <!-- 비밀번호 변경 -->
+		<![CDATA[UPDATE SUP_MEMBER SET MEM_PW = #{memPw} WHERE MEM_EMAIL = #{memEmail}]]>
+	</update>
+	
+	<update id="updateFailureCount">
+		<![CDATA[UPDATE SUP_MEMBER SET FAILURE_CNT = FAILURE_CNT + 1 WHERE MEM_ID = #{memId}]]>
+	</update>
+	
+	<select id="checkFailureCount" resultType="Integer">
+		<![CDATA[SELECT FAILURE_CNT FROM SUP_MEMBER WHERE MEM_ID = #{memId}]]>
+	</select>
+	
+	<update id="updateUnenabled">
+		<![CDATA[UPDATE SUP_MEMBER SET ENABLED = false WHERE MEM_ID = #{memId} ]]>
+	</update>
+	
+	<update id="updateFailureCountReset">
+		<![CDATA[UPDATE SUP_MEMBER SET FAILURE_CNT = 0 WHERE MEM_ID = #{memId}]]>
+	</update>
+	
+	<select id="memberModify" resultType="com.lee.ccc.dto.MemberDto"> <!-- 마이페이지 회원정보 -->
+		<![CDATA[SELECT MEM_ID AS memId,MEM_NAME AS memName,MEM_EMAIL AS memEmail,MEM_PHONE AS memPhone,MEM_ADD1 AS memAdd1,MEM_ADD2 AS memAdd2,MEM_ZIP AS memAdd3 FROM SUP_MEMBER WHERE MEM_ID = #{memId}]]>
+	</select>
+	
+	<update id="memberUpdate"> <!-- 마이페이지 회원정보수정 -->
+		<![CDATA[UPDATE SUP_MEMBER SET MEM_EMAIL = #{memEmail}, MEM_PHONE = #{memPhone}, MEM_ADD1 = #{memAdd1}, MEM_ADD2 = #{memAdd2}, MEM_ZIP = #{memAdd3} WHERE MEM_ID = #{memId}]]>
+	</update>
+	
+	<delete id="memberDelete"> <!-- 마이페이지 회원 탈퇴 -->
+		<![CDATA[DELETE FROM SUP_MEMBER WHERE MEM_ID = #{memId} AND MEM_PW = #{memPw}]]>
+	</delete>
+	
+	<update id="memberPwChange"> <!-- 마이페이지 비밀번호 변경 -->
+		<![CDATA[UPDATE SUP_MEMBER SET MEM_PW = #{memPw} WHERE MEM_ID = #{memId}]]>
+	</update>
+	
+	<select id="memberList" resultType="com.lee.ccc.dto.MemberDto"> <!-- 관리자 회원조회 -->
+		<![CDATA[SELECT MEM_ID as memId, MEM_LEVEL as memLevel, MEM_NAME as memName, MEM_PHONE as memPhone, MEM_ADD1 as memAdd1, MEM_ADD2 as memAdd2, MEM_ZIP as memAdd3, MEM_EMAIL as memEmail, MEM_DATE as regDate FROM SUP_MEMBER ORDER BY memName]]>
+	</select>
+	
+	<update id="adminUpdate"> <!-- 관리자 회원정보수정 -->
+		<![CDATA[UPDATE SUP_MEMBER SET MEM_ID = #{memId}, MEM_NAME = #{memName}, MEM_LEVEL = #{memLevel}, MEM_PHONE = #{memPhone}, MEM_EMAIL = #{memEmail} where MEM_ID = #{memId}]]>
+	</update>
+	
+	<delete id="adminDelete">
+		<![CDATA[DELETE FROM SUP_MEMBER WHERE MEM_ID = #{memId}]]>
+	</delete>
+	
+	<insert id="orderInfo" parameterType="com.lee.ccc.dto.OrderDto" >
+		<selectKey keyProperty="orderNum" resultType="String" order="AFTER">
+			SELECT #{orderNum}||SEQ_ORDER_NUM.CURRVAL FROM dual
+		</selectKey>
+		<![CDATA[INSERT INTO SUP_ORDER VALUES (#{orderNum}||SEQ_ORDER_NUM.NEXTVAL,#{orderCode},#{orderId},#{orderRecipient},#{orderAdd1},#{orderAdd2},#{orderAdd3},#{orderDeli},#{orderQuant},#{orderPrice},#{orderPhone},default,#{orderPm},default,#{orderPimage},#{orderPname},#{orderAmount})]]>
+	</insert>
+	
+	<select id="adminOrder" resultType="com.lee.ccc.dto.OrderDto">
+		<![CDATA[SELECT ORDER_NUM as orderNum, ORDER_CODE as orderCode, ORDER_ID as orderId, ORDER_RECIPIENT as orderRecipient, ORDER_ADD1 as orderAdd1, ORDER_ADD2 as orderAdd2, ORDER_ADD3 as orderAdd3, ORDER_DELI as orderDeli, ORDER_QUANT as orderQuant, ORDER_PRICE as orderPrice, ORDER_PHONE as orderPhone, ORDER_DATE as orderDate, ORDER_PM as orderPm, ORDER_STATE as orderState,ORDER_PIMAGE as orderPimage, ORDER_PNAME as orderPname, ORDER_AMOUNT as orderAmount FROM SUP_ORDER ORDER BY orderDate]]>
+	</select>
+	
+	<select id="orderList" resultType="com.lee.ccc.dto.OrderDto"> <!-- 마이페이지 주문내역조회 -->
+		<![CDATA[SELECT ORDER_NUM as orderNum, ORDER_CODE as orderCode, ORDER_ID as orderId, ORDER_RECIPIENT as orderRecipient, ORDER_ADD1 as orderAdd1, ORDER_ADD2 as orderAdd2, ORDER_ADD3 as orderAdd3, ORDER_DELI as orderDeli, ORDER_QUANT as orderQuant, ORDER_PRICE as orderPrice, ORDER_PHONE as orderPhone, ORDER_DATE as orderDate, ORDER_PM as orderPm, ORDER_STATE as orderState,ORDER_PIMAGE as orderPimage, ORDER_PNAME as orderPname, ORDER_AMOUNT as orderAmount FROM SUP_ORDER WHERE ORDER_ID = #{memId} ORDER BY orderDate]]>
+	</select>
+</mapper>
+

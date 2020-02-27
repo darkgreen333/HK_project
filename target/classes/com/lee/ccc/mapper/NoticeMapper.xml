@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "com.lee.ccc.NoticeMapper">
+	<insert id="noticeCreate">
+		insert into notice(n_num, n_title, n_content, n_writer, n_regdate, n_img)
+		values(n_seq.nextval, #{n_title}, #{n_content}, default, sysdate, #{n_img})
+	</insert>
+	
+	<select id="noticeRead" parameterType="int" resultType="com.lee.ccc.dto.NoticeDto">
+		select * from notice where n_num=#{n_num}
+	</select>
+	
+	<update id="noticeUpdate">
+		update notice set n_title=#{n_title}, n_content=#{n_content}, n_img=#{n_img} where n_num=#{n_num}
+	</update>
+	
+	<delete id="noticeDelete">
+		delete from notice where n_num=#{n_num}
+	</delete>
+	
+	<select id="noticeListSearch" resultType="com.lee.ccc.dto.NoticeDto">
+		select * from (
+			select a.*, rownum rnum
+			from(
+				select * from notice
+				where n_num > 0
+				<include refid="noticeSearch"/>
+				order by n_num desc) a
+			where ((#{noticePage} * #{noticePerPageNum}) + 1) > rownum) 
+		where rnum >= (((#{noticePage}-1) * #{noticePerPageNum}) + 1)
+		order by n_num desc
+	</select>
+	
+	<select id="noticeListSearchCount" resultType="int">
+		select count(n_num) from notice where n_num > 0
+		<include refid="noticeSearch"/>
+	</select>
+	
+	<sql id="noticeSearch">
+		<if test="noticeSearchType != null">
+			<if test="noticeSearchType == 't'.toString()">
+				and n_title like ('%' || #{noticeKeyword} || '%')
+			</if>
+			<if test="noticeSearchType == 'c'.toString()">
+				and n_content like ('%' || #{noticeKeyword} || '%')
+			</if>
+			<if test="noticeSearchType == 'w'.toString()">
+				and n_writer like ('%' || #{noticeKeyword} || '%')
+			</if>
+		</if>
+	</sql>
+</mapper>
