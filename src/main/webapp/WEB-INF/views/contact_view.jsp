@@ -87,7 +87,7 @@ dl.bullet:after {
 
 <script
  src="https://maps.googleapis.com/maps/api/js?key=
-AIzaSyD5as-sSccQwSeWqnQrfjSLwEP98kr6_S0&sensor=false&language=kr"> //구글key값
+> //구글key값
 </script> 
 
 <script>
